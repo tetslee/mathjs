@@ -439,7 +439,7 @@ describe('AssignmentNode', function() {
     var value = new ConstantNode(1);
     var n = new AssignmentNode(object, value);
 
-    assert.equal(n.toString({parenthesis: 'all'}), 'a = (1)');
+    assert.equal(n.toString({parenthesis: 'all'}), 'a := (1)');
     assert.equal(n.toTex({parenthesis: 'all'}), ' a:=\\left(1\\right)');
   });
 
@@ -448,7 +448,7 @@ describe('AssignmentNode', function() {
     var value = new ConstantNode(3);
     var n = new AssignmentNode(object, value);
 
-    assert.equal(n.toString(), 'b = 3');
+    assert.equal(n.toString(), 'b := 3');
   });
 
   it ('should stringify an AssignmentNode containing an AssignmentNode', function () {
@@ -456,7 +456,7 @@ describe('AssignmentNode', function() {
     var a = new AssignmentNode(new SymbolNode('a'), value);
     var n = new AssignmentNode(new SymbolNode('b'), a);
 
-    assert.equal(n.toString(), 'b = (a = 2)');
+    assert.equal(n.toString(), 'b := (a := 2)');
   });
 
   it ('should stringify an AssignmentNode with custom toString', function () {

@@ -261,7 +261,7 @@ describe('ConditionalNode', function() {
   it ('should stringify a ConditionalNode', function () {
     var n = new ConditionalNode(condition, a, b);
 
-    assert.equal(n.toString(), 'true ? (a = 2) : (b = 3)');
+    assert.equal(n.toString(), 'true ? (a := 2) : (b := 3)');
   });
 
   it ('should stringify a ConditionalNode with custom toString', function () {

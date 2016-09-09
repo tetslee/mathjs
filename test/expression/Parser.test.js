@@ -44,8 +44,8 @@ describe('parser', function() {
   it ('should get variables from the parsers namespace ', function () {
     var parser = new Parser();
 
-    parser.eval('a = 3');
-    parser.eval('b = a + 2');
+    parser.eval('a := 3');
+    parser.eval('b := a + 2');
     assert.equal(parser.eval('a'), 3);
     assert.equal(parser.eval('b'), 5);
     assert.equal(parser.get('a'), 3);
@@ -55,8 +55,8 @@ describe('parser', function() {
   it ('should get all variables from the parsers namespace ', function () {
     var parser = new Parser();
 
-    parser.eval('a = 3');
-    parser.eval('b = a + 2');
+    parser.eval('a := 3');
+    parser.eval('b := a + 2');
     assert.deepEqual(parser.getAll(), {a: 3, b: 5});
 
     parser.remove('a');
@@ -77,7 +77,7 @@ describe('parser', function() {
     assert.equal(parser.eval('a + 2'), 5);
 
     // adjust variable
-    assert.equal(parser.eval('a = a + 2'), 5);
+    assert.equal(parser.eval('a := a + 2'), 5);
     assert.equal(parser.eval('a'), 5);
     assert.equal(parser.get('a'), 5);
 
@@ -96,7 +96,7 @@ describe('parser', function() {
     assert.equal(parser.get('qq'), null);
     assert.throws(function () {parser.eval('qq')});
 
-    assert.equal(parser.eval('ww = 5'), 5);
+    assert.equal(parser.eval('ww := 5'), 5);
     assert.equal(parser.get('ww'), 5);
     parser.remove('ww');
     assert.equal(parser.get('ww'), null);
@@ -106,7 +106,7 @@ describe('parser', function() {
   it ('should clear the parsers namespace ', function () {
     var parser = new Parser();
 
-    assert.equal(parser.eval('xx = yy = zz = 5'), 5);
+    assert.equal(parser.eval('xx := yy := zz := 5'), 5);
 
     assert.equal(parser.set('pi', 'oops'), 'oops');
 

@@ -13,7 +13,7 @@ describe('help', function() {
     ],
     'description': 'Add two values.',
     'examples': [
-      'a = 2.1 + 3.6',
+      'a := 2.1 + 3.6',
       'a - 3.6'
     ],
     'seealso': [
@@ -66,7 +66,7 @@ describe('help', function() {
         '    add(x, y)\n' +
         '\n' +
         'Examples:\n' +
-        '    a = 2.1 + 3.6\n' +
+        '    a := 2.1 + 3.6\n' +
         '        5.7\n' +
         '    a - 3.6\n' +
         '        2.1\n' +
@@ -145,7 +145,7 @@ describe('help', function() {
       ],
       'description': 'Add two values.',
       'examples': [
-        'a = 2.1 + 3.6',
+        'a := 2.1 + 3.6',
         'a - 3.6'
       ],
       'seealso': [
@@ -168,7 +168,7 @@ describe('help', function() {
       ],
       'description': 'Add two values.',
       'examples': [
-        'a = 2.1 + 3.6',
+        'a := 2.1 + 3.6',
         'a - 3.6'
       ],
       'seealso': [

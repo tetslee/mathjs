@@ -251,7 +251,7 @@ describe('BlockNode', function() {
       {node: new SymbolNode('foo'), visible:true}
     ]);
 
-    assert.equal(n.toString(), '5\nfoo = 3;\nfoo');
+    assert.equal(n.toString(), '5\nfoo := 3;\nfoo');
   });
 
   it ('should stringify a BlockNode with custom toString', function () {

@@ -119,7 +119,7 @@ describe('FunctionAssignmentNode', function() {
     );
 
     var n2 = new FunctionAssignmentNode('fib', ['x'], n1);
-    //var n2 = math.parse('fib(x) = (x <= 0) ? 0 : ((x <= 2) ? 1 : (fib(x - 1) + f(fib - 2)))');
+    //var n2 = math.parse('fib(x) := (x <= 0) ? 0 : ((x <= 2) ? 1 : (fib(x - 1) + f(fib - 2)))');
 
     var expr = n2.compile();
     var scope = {};
@@ -261,8 +261,8 @@ describe('FunctionAssignmentNode', function() {
   });
 
   it ('should respect the \'all\' parenthesis option', function () {
-    var expr = math.parse('f(x)=x+1');
-    assert.equal(expr.toString({parenthesis: 'all'}), 'function f(x) = (x + 1)');
+    var expr = math.parse('f(x):=x+1');
+    assert.equal(expr.toString({parenthesis: 'all'}), 'function f(x) := (x + 1)');
     assert.equal(expr.toTex({parenthesis: 'all'}), '\\mathrm{f}\\left(x\\right):=\\left( x+1\\right)');
   });
 
@@ -272,7 +272,7 @@ describe('FunctionAssignmentNode', function() {
     var o = new OperatorNode('+', 'add', [a, x]);
     var n = new FunctionAssignmentNode('f', ['x'], o);
 
-    assert.equal(n.toString(), 'function f(x) = 2 + x');
+    assert.equal(n.toString(), 'function f(x) := 2 + x');
   });
 
   it ('should stringify a FunctionAssignmentNode conataining an AssignmentNode', function () {
@@ -281,7 +281,7 @@ describe('FunctionAssignmentNode', function() {
     var n1 = new AssignmentNode(new SymbolNode('a'), a);
     var n = new FunctionAssignmentNode('f', ['x'], n1);
 
-    assert.equal(n.toString(), 'function f(x) = (a = 2)');
+    assert.equal(n.toString(), 'function f(x) := (a := 2)');
   });
 
   it ('should stringify a FunctionAssignmentNode with custom toString', function () {
@@ -293,7 +293,7 @@ describe('FunctionAssignmentNode', function() {
           string += param + ', ';
         });
 
-        string += ')=' + node.expr.toString(options);
+        string += '):=' + node.expr.toString(options);
         return string;
       }
       else if (node.type === 'ConstantNode') {
@@ -305,7 +305,7 @@ describe('FunctionAssignmentNode', function() {
 
     var n = new FunctionAssignmentNode('func', ['x'], a);
 
-    assert.equal(n.toString({handler: customFunction}), '[func](x, )=const(1, number)');
+    assert.equal(n.toString({handler: customFunction}), '[func](x, ):=const(1, number)');
   });
 
   it ('should LaTeX a FunctionAssignmentNode', function() {
@@ -336,7 +336,7 @@ describe('FunctionAssignmentNode', function() {
           latex += param + ', ';
         });
 
-        latex += '\\right)=' + node.expr.toTex(options);
+        latex += '\\right):=' + node.expr.toTex(options);
         return latex;
       }
       else if (node.type === 'ConstantNode') {
@@ -348,7 +348,7 @@ describe('FunctionAssignmentNode', function() {
 
     var n = new FunctionAssignmentNode('func', ['x'], a);
 
-    assert.equal(n.toTex({handler: customFunction}), '\\mbox{func}\\left(x, \\right)=const\\left(1, number\\right)');
+    assert.equal(n.toTex({handler: customFunction}), '\\mbox{func}\\left(x, \\right):=const\\left(1, number\\right)');
   });
 
 });
