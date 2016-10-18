@@ -19,8 +19,11 @@ var ResultSet = math.type.ResultSet;
  * @param {Object} [scope]
  * @return {*} result
  */
-function parseAndEval(expr, scope) {
-  return parse(expr).eval(scope);
+function parseAndEval(expr, scope, options) {
+  return parse(expr, options).eval(scope);
+}
+function parseAndEvalImplicit(expr, scope) {
+  return parseAndEval(expr, scope, {implicitSymbols:true});
 }
 
 describe('parse', function() {
@@ -231,7 +234,7 @@ describe('parse', function() {
       assert.throws(function () {parseAndEval('.'); }, SyntaxError);
       assert.throws(function () {parseAndEval('3.2.2'); }, SyntaxError);
       assert.throws(function () {parseAndEval('3.2e2.2'); }, SyntaxError);
-      
+
       assert.throws(function () {parseAndEval('3e0.5'); }, /Digit expected, got "."/);
       assert.throws(function () {parseAndEval('3e.5'); }, /Digit expected, got "."/);
       assert.throws(function () {parseAndEval('-3e0.5'); }, /Digit expected, got "."/);
@@ -1936,6 +1939,49 @@ describe('parse', function() {
         assert.throws(function () {parse('custom(x, ', options);}, /Unexpected end of expression/);
       });
     });
+
+  });
+
+  describe ('implicitSymbols mode', function () {
+    it('should tokenize certain symbols for implicit multiplication', function () {
+      assert.equal(parseAndEvalImplicit('xy', {x:3, y:2}), 6);
+      assert.equal(parseAndEvalImplicit('pie'), parseAndEval('pi e'));
+      assert.equal(parseAndEvalImplicit('2x3ypie', {x:3, y:2}), parseAndEval('2 x 3 y pi e', {x:3, y:2}));
+    });
+
+    it('should parse implicit functions', function () {
+      approx.equal(parseAndEvalImplicit('sinx', {x:3.5}), Math.sin(3.5));
+      approx.equal(parseAndEvalImplicit('cosx', {x:3.5}), Math.cos(3.5));
+      approx.equal(parseAndEvalImplicit('tanx', {x:3.5}), Math.tan(3.5));
+      assert.equal(parseAndEvalImplicit('asinx', {x:1}), Math.asin(1));
+      assert.equal(parseAndEvalImplicit('acosx', {x:1}), Math.acos(1));
+      approx.equal(parseAndEvalImplicit('atanx', {x:1}), Math.atan(1));
+      approx.equal(parseAndEvalImplicit('sqrtx', {x:4}), 2);
+      approx.equal(parseAndEvalImplicit('absx', {x:-1}), 1);
+      assert.equal(parseAndEvalImplicit('logx', {x:3.5}), parseAndEval('log(x)', {x:3.5}));
+      // assert.equal(parseAndEvalImplicit('lnx', {x:3.5}), parseAndEval('ln(x)', {x:3.5}));
+      assert.equal(parseAndEvalImplicit('floorx', {x:3.5}), 3);
+      assert.equal(parseAndEvalImplicit('ceilx', {x:3.5}), 4);
+    });
+
+    it('should parse parameters of implicit functions', function () {
+      assert.equal(parseAndEvalImplicit('floorxy', {x:3.5, y: 1.5}), 5);
+      assert.equal(parseAndEvalImplicit('floor-x', {x:3.5}), -4);
+      assert.equal(parseAndEvalImplicit('floor-xy', {x:3.5, y: 1.5}), -6);
+      assert.equal(parseAndEvalImplicit('floor-x1.5', {x:3.5}), -6);
+      assert.equal(parseAndEvalImplicit('floor-1.5x', {x:3.5}), -6);
+      assert.equal(parseAndEvalImplicit('floor2x2y', {x:3, y:5}), 60);
+      assert.equal(parseAndEvalImplicit('cossinpi'), 1);
+      approx.equal(parseAndEvalImplicit('cossin-(pi/2)'), 0.5403023058681398);
+
+      // parameters that break outside of the implicit function
+      assert.equal(parseAndEvalImplicit('floor 2 0.4'), 0.8);
+      assert.equal(parseAndEvalImplicit('floor -2 0.4'), -0.8);
+      assert.equal(parseAndEvalImplicit('floor -(2) 0.4'), -0.8);
+    });
+
+    // it('should throw an error for invalid implicit function parameters', function () {
+    // });
 
   });
 
