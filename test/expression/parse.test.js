@@ -1959,7 +1959,7 @@ describe('parse', function() {
       approx.equal(parseAndEvalImplicit('sqrtx', {x:4}), 2);
       approx.equal(parseAndEvalImplicit('absx', {x:-1}), 1);
       assert.equal(parseAndEvalImplicit('logx', {x:3.5}), parseAndEval('log(x)', {x:3.5}));
-      // assert.equal(parseAndEvalImplicit('lnx', {x:3.5}), parseAndEval('ln(x)', {x:3.5}));
+      assert.equal(parseAndEvalImplicit('lnx', {x:3.5}), parseAndEval('ln(x)', {x:3.5}));
       assert.equal(parseAndEvalImplicit('floorx', {x:3.5}), 3);
       assert.equal(parseAndEvalImplicit('ceilx', {x:3.5}), 4);
     });
