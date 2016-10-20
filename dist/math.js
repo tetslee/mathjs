@@ -7,7 +7,7 @@
  * mathematical functions, and a flexible expression parser.
  *
  * @version 3.4.1
- * @date    2016-08-11
+ * @date    2016-10-20
  *
  * @license
  * Copyright (C) 2013-2016 Jos de Jong <wjosdejong@gmail.com>
@@ -25301,8 +25301,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  docs.gcd = __webpack_require__(148);
 	  docs.hypot = __webpack_require__(149);
 	  docs.lcm = __webpack_require__(150);
-	  docs.log = __webpack_require__(151);
-	  docs.log10 = __webpack_require__(152);
+	  docs.ln = __webpack_require__(151);
+	  docs.log = __webpack_require__(152);
 	  docs.mod = __webpack_require__(153);
 	  docs.multiply = __webpack_require__(154);
 	  docs.norm = __webpack_require__(155);
@@ -25747,7 +25747,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    'e',
 	    'e ^ 2',
 	    'exp(2)',
-	    'log(e)'
+	    'ln(e)'
 	  ],
 	  'seealso': ['exp']
 	};
@@ -25823,7 +25823,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  'description': 'Returns the natural logarithm of 2, approximately equal to 0.693',
 	  'examples': [
 	    'LN2',
-	    'log(2)'
+	    'ln(2)'
 	  ],
 	  'seealso': []
 	};
@@ -25842,7 +25842,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  'description': 'Returns the natural logarithm of 10, approximately equal to 2.302',
 	  'examples': [
 	    'LN10',
-	    'log(10)'
+	    'ln(10)'
 	  ],
 	  'seealso': []
 	};
@@ -26396,13 +26396,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  'examples': [
 	    'exp(1.3)',
 	    'e ^ 1.3',
-	    'log(exp(1.3))',
+	    'ln(exp(1.3))',
 	    'x = 2.4',
 	    '(exp(i*x) == cos(x) + i*sin(x))   # Euler\'s formula'
 	  ],
 	  'seealso': [
 	    'pow',
-	    'log'
+	    'ln'
 	  ]
 	};
 
@@ -26518,26 +26518,26 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	module.exports = {
-	  'name': 'log',
+	  'name': 'ln',
 	  'category': 'Arithmetic',
 	  'syntax': [
-	    'log(x)',
-	    'log(x, base)'
+	    'ln(x)',
+	    'ln(x, base)'
 	  ],
-	  'description': 'Compute the logarithm of a value. If no base is provided, the natural logarithm of x is calculated. If base if provided, the logarithm is calculated for the specified base. log(x, base) is defined as log(x) / log(base).',
+	  'description': 'Compute the natural logarithm of a value.',
 	  'examples': [
-	    'log(3.5)',
-	    'a = log(2.4)',
+	    'ln(3.5)',
+	    'a = ln(2.4)',
 	    'exp(a)',
 	    '10 ^ 4',
-	    'log(10000, 10)',
-	    'log(10000) / log(10)',
-	    'b = log(1024, 2)',
+	    'ln(10000, 10)',
+	    'ln(10000) / ln(10)',
+	    'b = ln(1024, 2)',
 	    '2 ^ b'
 	  ],
 	  'seealso': [
 	    'exp',
-	    'log10'
+	    'log'
 	  ]
 	};
 
@@ -26546,22 +26546,22 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	module.exports = {
-	  'name': 'log10',
+	  'name': 'log',
 	  'category': 'Arithmetic',
 	  'syntax': [
-	    'log10(x)'
+	    'log(x)'
 	  ],
-	  'description': 'Compute the 10-base logarithm of a value.',
+	  'description': 'Compute the logarithm of a value. If no base is provided, the 10-base logarithm of x is calculated. If base if provided, the logarithm is calculated for the specified base. log(x, base) is defined as ln(x) / ln(base).',
 	  'examples': [
-	    'log10(0.00001)',
-	    'log10(10000)',
+	    'log(0.00001)',
+	    'log(10000)',
 	    '10 ^ 4',
 	    'log(10000) / log(10)',
 	    'log(10000, 10)'
 	  ],
 	  'seealso': [
 	    'exp',
-	    'log'
+	    'ln'
 	  ]
 	};
 
@@ -33406,7 +33406,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      expr = '(' + expr + ')';
 	    }
 	    return 'function ' + this.name +
-	        '(' + this.params.join(', ') + ') = ' + expr;
+	        '(' + this.params.join(', ') + ') := ' + expr;
 	  };
 
 	  /**
@@ -43585,24 +43585,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	   *
 	   * Syntax:
 	   *
-	   *    math.log(x)
-	   *    math.log(x, base)
+	   *    math.ln(x)
+	   *    math.ln(x, base)
 	   *
 	   * Examples:
 	   *
-	   *    math.log(3.5);                  // returns 1.252762968495368
-	   *    math.exp(math.log(2.4));        // returns 2.4
+	   *    math.ln(3.5);                  // returns 1.252762968495368
+	   *    math.exp(math.ln(2.4));        // returns 2.4
 	   *
 	   *    math.pow(10, 4);                // returns 10000
-	   *    math.log(10000, 10);            // returns 4
-	   *    math.log(10000) / math.log(10); // returns 4
+	   *    math.ln(10000, 10);            // returns 4
+	   *    math.ln(10000) / math.ln(10); // returns 4
 	   *
-	   *    math.log(1024, 2);              // returns 10
+	   *    math.ln(1024, 2);              // returns 10
 	   *    math.pow(2, 10);                // returns 1024
 	   *
 	   * See also:
 	   *
-	   *    exp, log10
+	   *    exp, log
 	   *
 	   * @param {number | BigNumber | Complex | Array | Matrix} x
 	   *            Value for which to calculate the logarithm.
@@ -43612,7 +43612,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * @return {number | BigNumber | Complex | Array | Matrix}
 	   *            Returns the logarithm of `x`
 	   */
-	  var log = typed('log', {
+	  var ln = typed('ln', {
 	    'number': function (x) {
 	      if (x >= 0 || config.predictable) {
 	        return Math.log(x);
@@ -43638,24 +43638,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 
 	    'Array | Matrix': function (x) {
-	      return deepMap(x, log);
+	      return deepMap(x, ln);
 	    },
 
-	    'any, any': function (x, base) {
-	      // calculate logarithm for a specified base, log(x, base)
-	      return divideScalar(log(x), log(base));
-	    }
 	  });
 
-	  log.toTex = {
-	    1: '\\ln\\left(${args[0]}\\right)',
-	    2: '\\log_{${args[1]}}\\left(${args[0]}\\right)'
+	  ln.toTex = {
+	    1: '\\ln\\left(${args[0]}\\right)'
 	  };
 
-	  return log;
+	  return ln;
 	}
 
-	exports.name = 'log';
+	exports.name = 'ln';
 	exports.factory = factory;
 
 
@@ -43668,6 +43663,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var deepMap = __webpack_require__(19);
 
 	function factory (type, config, load, typed) {
+	  var divideScalar = load(__webpack_require__(81));
+	  var ln = load(__webpack_require__(382));
 	  /**
 	   * Calculate the 10-base logarithm of a value. This is the same as calculating `log(x, 10)`.
 	   *
@@ -43675,25 +43672,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	   *
 	   * Syntax:
 	   *
-	   *    math.log10(x)
+	   *    math.log(x)
 	   *
 	   * Examples:
 	   *
-	   *    math.log10(0.00001);            // returns -5
-	   *    math.log10(10000);              // returns 4
+	   *    math.log(0.00001);            // returns -5
+	   *    math.log(10000);              // returns 4
 	   *    math.log(10000) / math.log(10); // returns 4
 	   *    math.pow(10, 4);                // returns 10000
 	   *
 	   * See also:
 	   *
-	   *    exp, log
+	   *    exp, ln
 	   *
 	   * @param {number | BigNumber | Complex | Array | Matrix} x
 	   *            Value for which to calculate the logarithm.
 	   * @return {number | BigNumber | Complex | Array | Matrix}
 	   *            Returns the 10-base logarithm of `x`
 	   */
-	  var log10 = typed('log10', {
+	  var log = typed('log', {
 	    'number': function (x) {
 	      if (x >= 0 || config.predictable) {
 	        return _log10(x);
@@ -43719,13 +43716,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 
 	    'Array | Matrix': function (x) {
-	      return deepMap(x, log10);
+	      return deepMap(x, log);
+	    },
+
+	    'any, any': function (x, base) {
+	      // calculate logarithm for a specified base, log(x, base)
+	      return divideScalar(ln(x), ln(base));
 	    }
 	  });
 
-	  log10.toTex = {1: '\\log_{10}\\left(${args[0]}\\right)'};
+	  log.toTex = {
+	    1: '\\log_{10}\\left(${args[0]}\\right)',
+	    2: '\\log_{${args[1]}}\\left(${args[0]}\\right)'
+	  };
 
-	  return log10;
+	  return log;
 	}
 
 	/**
@@ -43738,7 +43743,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return Math.log(x) / Math.LN10;
 	};
 
-	exports.name = 'log10';
+	exports.name = 'log';
 	exports.factory = factory;
 
 
@@ -50389,7 +50394,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var sum = load(__webpack_require__(447));
 	    var multiply = load(__webpack_require__(84));
 	    var dotDivide = load(__webpack_require__(368));
-	    var log = load(__webpack_require__(382));
+	    var ln = load(__webpack_require__(382));
 	    var isNumeric = load(__webpack_require__(89));
 
 	    /**
@@ -50455,7 +50460,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var qnorm = divide(q, sum(q));
 	        var pnorm = divide(p, sum(p));
 
-	        var result = sum(multiply(qnorm, log(dotDivide(qnorm, pnorm))));
+	        var result = sum(multiply(qnorm, ln(dotDivide(qnorm, pnorm))));
 	        if (isNumeric(result)) {
 	            return result;
 	        }

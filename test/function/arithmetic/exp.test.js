@@ -27,7 +27,7 @@ describe('exp', function() {
     approx.equal(exp(1), 2.71828182845905);
     approx.equal(exp(2), 7.38905609893065);
     approx.equal(exp(3), 20.0855369231877);
-    approx.equal(exp(math.log(100)), 100);
+    approx.equal(exp(math.ln(100)), 100);
   });
 
   it('should exponentiate a bignumber', function() {
