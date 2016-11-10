@@ -62,15 +62,15 @@ describe('derivative', function() {
   });
 
   it('should take the derivative of FunctionAssignmentNodes', function() {
-    assert.deepEqual(derivative(parseNoComment('f(x) = 5x + x + 2'), new SymbolNode('x')),
+    assert.deepEqual(derivative(parseNoComment('f(x) := 5x + x + 2'), new SymbolNode('x')),
                      parseNoComment('5*1 + 1 + 0'));
-    assert.deepEqual(derivative(parseNoComment('f(x) = 5 + 2'), new SymbolNode('x')),
+    assert.deepEqual(derivative(parseNoComment('f(x) := 5 + 2'), new SymbolNode('x')),
                      new ConstantNode(0));
-    assert.deepEqual(derivative(parseNoComment('f(y) = 5y + 2'), new SymbolNode('x')),
+    assert.deepEqual(derivative(parseNoComment('f(y) := 5y + 2'), new SymbolNode('x')),
                      new ConstantNode(0));
 
     // non-embedded example
-    var f_of_x = parseNoComment('f(x) = x + 2');
+    var f_of_x = parseNoComment('f(x) := x + 2');
     var newFunc = new OperatorNode('+', 'add', [parseNoComment('5x'), f_of_x]);
     assert.deepEqual(derivative(newFunc, new SymbolNode('x')), new OperatorNode('+', 'add', [
                                                                  parseNoComment('5*1'),
@@ -131,7 +131,7 @@ describe('derivative', function() {
     // d/dx(10^(2x + 2)) = 10^(2x + 2)*ln(10)*(2*1 + 0)
     assert.deepEqual(computeDerivative('derivative(10^(2x + 2), x)'), new OperatorNode('*', 'multiply', [
                                                            parseNoComment('10^(2x + 2)'),
-                                                           parseNoComment('log(10)*(2*1 + 0)')
+                                                           parseNoComment('ln(10)*(2*1 + 0)')
                                                          ]));
     // Secret constant, f(x)^0 = 1 -> d/dx(f(x)^0) = 1
     assert.deepEqual(computeDerivative('derivative((x^x^x^x)^0, x)'), new ConstantNode(0));
@@ -166,8 +166,8 @@ describe('derivative', function() {
                                                      ])
                                                    ]));
 
-    // Functional Power Rule, d/dx((x^3 + x)^(5x + 2)) = (x^3 + x)^(5x + 2) * [(((3*1*x)^(3-1)+1) * ((5x + 2) / (x^3 + x))) + (5*1 + 0)log((x^3 + x))]
-    //                                                 = (x^3 + x)^(5x + 2) * [((3x^2 + 1)*(5x + 2) / (x^3 + x)) + 5log(x^3 + x)]
+    // Functional Power Rule, d/dx((x^3 + x)^(5x + 2)) = (x^3 + x)^(5x + 2) * [(((3*1*x)^(3-1)+1) * ((5x + 2) / (x^3 + x))) + (5*1 + 0)ln((x^3 + x))]
+    //                                                 = (x^3 + x)^(5x + 2) * [((3x^2 + 1)*(5x + 2) / (x^3 + x)) + 5ln(x^3 + x)]
     assert.deepEqual(computeDerivative('derivative((x^3 + x)^(5x + 2), x)'), new OperatorNode('*', 'multiply', [
                                                                   parseNoComment('(x^3 + x)^(5x + 2)'),
                                                                   new OperatorNode('+', 'add', [
@@ -189,7 +189,7 @@ describe('derivative', function() {
                                                                       ),
                                                                       parseNoComment('(5x + 2) / (x^3 + x)')
                                                                     ]),
-                                                                    parseNoComment('(5*1 + 0)log((x^3 + x))')
+                                                                    parseNoComment('(5*1 + 0)ln((x^3 + x))')
                                                                   ])
                                                                 ]));
   });
@@ -223,7 +223,7 @@ describe('derivative', function() {
                                                                 ])
                                                               ])
                                                             ]));
-    // (6 * x) ^ (1 / (2 * x)) * (((6*1)*((1/(2x))/(6x))) + ((((0*2x)-(1*(2*1)))/(2x)^2)*log(6x)))
+    // (6 * x) ^ (1 / (2 * x)) * (((6*1)*((1/(2x))/(6x))) + ((((0*2x)-(1*(2*1)))/(2x)^2)*ln(6x)))
     assert.deepEqual(computeDerivative('derivative(nthRoot((6x), (2x)), x)'), new OperatorNode('*', 'multiply', [
                                                                    new OperatorNode('^', 'pow', [
                                                                      parseNoComment('(6x)'),
@@ -239,32 +239,32 @@ describe('derivative', function() {
                                                                          parseNoComment('0*(2x) - 1*(2*1)'),
                                                                          parseNoComment('(2x)^2')
                                                                        ]),
-                                                                       parseNoComment('log((6x))')
+                                                                       parseNoComment('ln((6x))')
                                                                      ])
                                                                    ])
                                                                  ]));
-    assert.deepEqual(computeDerivative('derivative(log((6x)), x)'), parseNoComment('(6*1)/(6*x)'));
-    assert.deepEqual(computeDerivative('derivative(log10((6x)), x)'), new OperatorNode('/', 'divide', [
+    assert.deepEqual(computeDerivative('derivative(ln((6x)), x)'), parseNoComment('(6*1)/(6*x)'));
+    assert.deepEqual(computeDerivative('derivative(log((6x)), x)'), new OperatorNode('/', 'divide', [
                                                            parseNoComment('(6*1)'),
-                                                           parseNoComment('(6x)log(10)')
+                                                           parseNoComment('(6x)ln(10)')
                                                          ]));
     assert.deepEqual(computeDerivative('derivative(log((6x), 10), x)'), new OperatorNode('/', 'divide', [
                                                              parseNoComment('(6*1)'),
-                                                             parseNoComment('(6x)log(10)')
+                                                             parseNoComment('(6x)ln(10)')
                                                            ]));
-    // d/dx(log(2x, 3x)) = ((2 * 1) / (2 * x) * log(3 * x) - log(2 * x) * (3 * 1) / (3 * x)) / log(3 * x) ^ 2 = (log(3x) - log(2x)) / (xlog(3x)^2)
+    // d/dx(log(2x, 3x)) = ((2 * 1) / (2 * x) * ln(3 * x) - ln(2 * x) * (3 * 1) / (3 * x)) / ln(3 * x) ^ 2 = (ln(3x) - ln(2x)) / (xln(3x)^2)
     assert.deepEqual(computeDerivative('derivative(log((2x), (3x)), x)'), new OperatorNode('/', 'divide', [
                                                                new OperatorNode('-', 'subtract', [
                                                                  new OperatorNode('*', 'multiply', [
                                                                    parseNoComment('(2*1) / (2x)'),    
-                                                                   new FunctionNode('log', [parseNoComment('(3x)')])
+                                                                   new FunctionNode('ln', [parseNoComment('(3x)')])
                                                                  ]),
                                                                  new OperatorNode('*', 'multiply', [
-                                                                   new FunctionNode('log', [parseNoComment('(2x)')]),
+                                                                   new FunctionNode('ln', [parseNoComment('(2x)')]),
                                                                    parseNoComment('(3*1) / (3x)')
                                                                  ])
                                                                ]),
-                                                               parseNoComment('log((3x))^2')
+                                                               parseNoComment('ln((3x))^2')
                                                              ]));
 
     assert.deepEqual(computeDerivative('derivative(sin(2x), x)'), parseNoComment('2*1*cos(2x)'));
@@ -334,12 +334,12 @@ describe('derivative', function() {
 
   it('should take the partial derivative of an expression', function() {
     assert.deepEqual(computeDerivative('derivative(x + y, x)'), parseNoComment('1 + 0'));
-    assert.deepEqual(computeDerivative('derivative(x + log(y)*y, x)'), parseNoComment('1 + 0'));
+    assert.deepEqual(computeDerivative('derivative(x + ln(y)*y, x)'), parseNoComment('1 + 0'));
 
     assert.deepEqual(computeDerivative('derivative(x + y + z, x)'), parseNoComment('1 + 0 + 0'));
-    assert.deepEqual(computeDerivative('derivative(x + log(y)*z, x)'), parseNoComment('1 + 0'));
+    assert.deepEqual(computeDerivative('derivative(x + ln(y)*z, x)'), parseNoComment('1 + 0'));
 
-    assert.deepEqual(computeDerivative('derivative(x + log(y)*x, x)'), parseNoComment('1 + log(y)*1'));
+    assert.deepEqual(computeDerivative('derivative(x + ln(y)*x, x)'), parseNoComment('1 + ln(y)*1'));
 
     // 2 * 1 * x ^ (2 - 1) + y * 1 + 0 = 2x + y
     assert.deepEqual(computeDerivative('derivative(x^2 + x*y + y^2, x)'), new OperatorNode('+', 'add', [
