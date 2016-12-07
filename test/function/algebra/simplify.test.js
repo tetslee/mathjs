@@ -52,6 +52,10 @@ describe('simplify', function() {
     simplifyAndCompare('x*y*-x/(x^2)', '-y');
   });
 
+  it('should work with FunctionNodes', function() {
+    simplifyAndCompare('sin(x)+sin(x)', '2*sin(x)');
+  });
+
   it('should compute and simplify derivatives', function() {
     simplifyAndCompare('derivative(5x*3x, x)', '30*x');
     simplifyAndCompare('5+derivative(5/(3x), x)', '5-15/(3*x)^2');
