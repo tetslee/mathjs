@@ -7,7 +7,7 @@
  * mathematical functions, and a flexible expression parser.
  *
  * @version 3.6.0
- * @date    2016-12-07
+ * @date    2016-12-12
  *
  * @license
  * Copyright (C) 2013-2016 Jos de Jong <wjosdejong@gmail.com>
@@ -39017,7 +39017,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    { l: "n^1", r: "n" },
 	    { l: "+n1", r:"n1" },
 	    { l: "n--n1", r:"n+n1" },
-	    { l: "log(e)", r:"1" },
+	    { l: "ln(e)", r:"1" },
 
 	    // temporary rules
 	    { l: "n-n1", r:"n+-n1" }, // temporarily replace 'subtract' so we can further flatten the 'add' operator
@@ -39414,6 +39414,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	          return [];
 	        }
 	      }
+	      else if (['true', 'false', 'e', 'pi'].indexOf(rule.name) >= 0) {
+	        // Literal constant in our rule, so much match node exactly
+	        if(rule.name === node.name) {
+	          // The constants match
+	        }
+	        else {
+	          return [];
+	        }
+	      }
 	      else {
 	        throw new Error("Invalid symbol in rule: " + rule.name);
 	      }
@@ -39782,11 +39791,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // the other option is for typed() to specify a return type so that we can evaluate the type of arguments
 	  var commutative = {
 	    'add': true,
-	    'multiply': true
+	    'multiply': true,
+	    'and': true,
+	    'or': true,
 	  }
 	  var associative = {
 	    'add': true,
-	    'multiply': true
+	    'multiply': true,
+	    'and': true,
+	    'or': true,
 	  }
 
 
