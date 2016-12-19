@@ -7,7 +7,7 @@
  * mathematical functions, and a flexible expression parser.
  *
  * @version 3.6.0
- * @date    2016-12-12
+ * @date    2016-12-19
  *
  * @license
  * Copyright (C) 2013-2016 Jos de Jong <wjosdejong@gmail.com>
@@ -38929,6 +38929,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var unflattenr = util.unflattenr;
 	  var unflattenl = util.unflattenl;
 	  var createMakeNodeFunction = util.createMakeNodeFunction;
+
 	  /**
 	   * Returns a simplified expression tree.
 	   *
@@ -38939,6 +38940,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * Syntax:
 	   *
 	   *     simplify(expr)
+	   *     simplify(expr, options)
 	   *
 	   * Usage:
 	   *
@@ -38946,11 +38948,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	   *     math.simplify(math.parse('2 * 1 * x ^ (2 - 1)'))
 	   *
 	   * @param  {ConstantNode | SymbolNode | ParenthesisNode | FunctionNode | OperatorNode} expr
+	   * @param  {Object} options:
+	   *   rules: an array of rules to apply to the expression. Can either be a String or a function.
+	   *   useFractions: if true (default), any constants will be coerced to fractions.
+	   *
 	   * @return {ConstantNode | SymbolNode | ParenthesisNode | FunctionNode | OperatorNode} The simplified form of `expr`
 	   */
 	  var simplify = typed('simplify', {
 	    'string': function (expr) {
-	      return parse(expr).simplify(default_rules);
+	      return parse(expr).simplify(getDefaultRules());
 	    },
 
 	    'string, Array': function (expr, rules) {
@@ -38958,7 +38964,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 
 	    'Node': function (expr) {
-	      return simplify(expr, default_rules);
+	      return simplify(expr, getDefaultRules());
+	    },
+
+	    'Node, Object': function (expr, options) {
+	      var rules;
+	      if (options.rules) {
+	        rules = param.rules;
+	      }
+	      else {
+	        rules = getDefaultRules(options);
+	      }
+	      return simplify(expr, rules);
 	    },
 
 	    'Node, Array': function (expr, rules) {
@@ -38988,16 +39005,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  });
 
-	  function removeParens(node) {
-	    return node.transform(function(node, path, parent) {
-	      if(node.isParenthesisNode) {
-	        return node.content;
-	      }
-	      else {
-	        return node;
-	      }
-	    });
-	  }
+	  var DEFAULT_OPTIONS = {
+	    useFractions: false
+	  };
 
 	  // Array of strings, used to build the ruleSet.
 	  // Each l (left side) and r (right side) are parsed by
@@ -39008,58 +39018,81 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // TODO: Add support for constraints on constants (either in the form of a '=' expression or a callback [callback allows things like comparing symbols alphabetically])
 	  // To evaluate lhs constants for rhs constants, use: { l: "c1+c2", r: "c3", evaluate: "c3 = c1 + c2" }. Multiple assignments are separated by ';' in block format.
 	  // It is possible to get into an infinite loop with conflicting rules
-	  var default_rules = [
-	    simplifyDerivative,
-	    { l: "n+0", r: "n" },
-	    { l: "n^0", r: "1" },
-	    { l: "0*n", r: "0" },
-	    { l: "n/n", r: "1"},
-	    { l: "n^1", r: "n" },
-	    { l: "+n1", r:"n1" },
-	    { l: "n--n1", r:"n+n1" },
-	    { l: "ln(e)", r:"1" },
+	  var getDefaultRules = function(options) {
+	    if (!options) {
+	      options = DEFAULT_OPTIONS;
+	    }
+	    var constantFolder = simplifyConstant;
+	    if (options.hasOwnProperty('useFractions')) {
+	      constantFolder = function(e) {
+	        return simplifyConstant(e, options.useFractions);
+	      };
+	    }
+	    return [
+	      simplifyDerivative,
+	      { l: "n+0", r: "n" },
+	      { l: "n^0", r: "1" },
+	      { l: "0*n", r: "0" },
+	      { l: "n/n", r: "1"},
+	      { l: "n^1", r: "n" },
+	      { l: "+n1", r:"n1" },
+	      { l: "n--n1", r:"n+n1" },
+	      { l: "ln(e)", r:"1" },
 
-	    // temporary rules
-	    { l: "n-n1", r:"n+-n1" }, // temporarily replace 'subtract' so we can further flatten the 'add' operator
-	    { l: "-(c*C)", r: "(-c) * C" }, // make non-constant terms positive
-	    { l: "-C", r: "(-1) * C" },
-	    { l: "n/n1^n2", r:"n*n1^-n2" }, // temporarily replace 'divide' so we can further flatten the 'multiply' operator
-	    { l: "n/n1", r:"n*n1^-1" },
+	      // temporary rules
+	      { l: "n-n1", r:"n+-n1" }, // temporarily replace 'subtract' so we can further flatten the 'add' operator
+	      { l: "-(c*C)", r: "(-c) * C" }, // make non-constant terms positive
+	      { l: "-C", r: "(-1) * C" },
+	      { l: "n/n1^n2", r:"n*n1^-n2" }, // temporarily replace 'divide' so we can further flatten the 'multiply' operator
+	      { l: "n/n1", r:"n*n1^-1" },
 
-	    // collect like factors
-	    { l: "n*n", r: "n^2" },
-	    { l: "n * n^n1", r: "n^(n1+1)" },
-	    { l: "n^n1 * n^n2", r: "n^(n1+n2)" },
+	      // collect like factors
+	      { l: "n*n", r: "n^2" },
+	      { l: "n * n^n1", r: "n^(n1+1)" },
+	      { l: "n^n1 * n^n2", r: "n^(n1+n2)" },
 
-	    // collect like terms
-	    { l: "n+n", r: "2*n" },
-	    { l: "n+-n", r: "0" },
-	    { l: "n1*n2 + n2", r: "(n1+1)*n2" },
-	    { l: "n1*n3 + n2*n3", r: "(n1+n2)*n3" },
+	      // collect like terms
+	      { l: "n+n", r: "2*n" },
+	      { l: "n+-n", r: "0" },
+	      { l: "n1*n2 + n2", r: "(n1+1)*n2" },
+	      { l: "n1*n3 + n2*n3", r: "(n1+n2)*n3" },
 
-	    simplifyConstant,
+	      constantFolder,
 
-	    { l: "(-n)*n1", r: "-(n*n1)" }, // make factors positive (and undo "make non-constant terms positive")
+	      { l: "(-n)*n1", r: "-(n*n1)" }, // make factors positive (and undo "make non-constant terms positive")
 
-	    // ordering of constants
-	    { l: "c+C", r: "C+c", context:{'add':{commutative:false}}},
-	    { l: "C*c", r: "c*C", context:{'multiply':{commutative:false}}},
+	      // ordering of constants
+	      { l: "c+C", r: "C+c", context:{'add':{commutative:false}}},
+	      { l: "C*c", r: "c*C", context:{'multiply':{commutative:false}}},
 
-	    // undo temporary rules
-	    { l: "(-1) * n", r: "-n" },
-	    { l: "n+-n1", r:"n-n1" },  // undo replace 'subtract'
-	    { l: "n*(n1^-1)", r:"n/n1" },  // undo replace 'divide'
-	    { l: "n*n1^-n2", r:"n/n1^n2" },
-	    { l: "n1^-1", r:"1/n1" },
+	      // undo temporary rules
+	      { l: "(-1) * n", r: "-n" },
+	      { l: "n+-n1", r:"n-n1" },  // undo replace 'subtract'
+	      { l: "n*(n1^-1)", r:"n/n1" },  // undo replace 'divide'
+	      { l: "n*n1^-n2", r:"n/n1^n2" },
+	      { l: "n1^-1", r:"1/n1" },
 
-	    { l: "n*(n1/n2)", r:"(n*n1)/n2" }, // '*' before '/'
-	    { l: "n-(n1+n2)", r:"n-n1-n2" }, // '-' before '+'
-	    // { l: "(n1/n2)/n3", r: "n1/(n2*n3)" },
-	    // { l: "(n*n1)/(n*n2)", r: "n1/n2" },
+	      { l: "n*(n1/n2)", r:"(n*n1)/n2" }, // '*' before '/'
+	      { l: "n-(n1+n2)", r:"n-n1-n2" }, // '-' before '+'
+	      // { l: "(n1/n2)/n3", r: "n1/(n2*n3)" },
+	      // { l: "(n*n1)/(n*n2)", r: "n1/n2" },
 
-	    { l: "1*n", r: "n" }, // this pattern can be produced by simplifyConstant
+	      { l: "1*n", r: "n" }, // this pattern can be produced by simplifyConstant
 
-	  ];
+	    ];
+	  };
+
+
+	  function removeParens(node) {
+	    return node.transform(function(node, path, parent) {
+	      if(node.isParenthesisNode) {
+	        return node.content;
+	      }
+	      else {
+	        return node;
+	      }
+	    });
+	  }
 
 	  /**
 	   * Parse the string array of rules into nodes
@@ -39074,7 +39107,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * { l: "(n1 - n2) * (n1 + n2)", r: "n1^2 - n2^2" }
 	   * n1, n2 mean any Node.
 	   */
-	  function _buildRules(rules) {
+	  function _buildRules(rules, options) {
 	    // Array of rules to be used to simplify expressions
 	    var ruleSet = [];
 	    for(var i=0; i<rules.length; i++) {
@@ -39559,7 +39592,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	'use strict';
 
 	var digits = __webpack_require__(6).digits;
-	// TODO this could be improved by simplifying seperated constants under associative and commutative operators
 	function factory(type, config, load, typed, math) {
 	  var util = load(__webpack_require__(343));
 	  var isCommutative = util.isCommutative;
@@ -39572,7 +39604,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var ConstantNode = math.expression.node.ConstantNode;
 	  var OperatorNode = math.expression.node.OperatorNode;
 
-	  function simplifyConstant(expr) {
+	  var _useFractions = false;
+
+	  function simplifyConstant(expr, useFrac) {
+	    if (typeof useFrac === 'undefined') {
+	      useFrac = false;
+	    }
+	    _useFractions = useFrac;
+
 	    var res = foldFraction(expr);
 	    return res.isNode ? res : _toNode(res);
 	  }
@@ -39582,7 +39621,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return _toNumber(math[fnname].apply(null, args));
 	    }
 	    catch (ignore) {
-	    // sometimes the implicit type conversion causes the evaluation to fail, so we'll try again using just numbers
+	      // sometimes the implicit type conversion causes the evaluation to fail, so we'll try again using just numbers
 	      args = args.map(function(x){ return x.valueOf(); });
 	      return _toNumber(math[fnname].apply(null, args));
 	    }
@@ -39599,11 +39638,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 	  });
 
+	  // Depending on if _useFractions is on or off, this method will coerce
+	  // all constants to either decimals or fractions.
 	  var _toNumber = typed({
-	    'Fraction': function(s) { return s; },
+	    'Fraction': function(s) {
+	      if (_useFractions) {
+	        return s;
+	      }
+	      return s.valueOf();
+	    },
 	    'BigNumber': function(s) {
 	      var num = s.toNumber();
-	      if (s.decimalPlaces() <= 15) {
+	      if (_useFractions && s.decimalPlaces() <= 15) {
 	        var f = math.fraction(num);
 	        if (f.valueOf() === num) {
 	          return f;
@@ -39612,9 +39658,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return num;
 	    },
 	    'number': function(s) {
-	      var f = math.fraction(s);
-	      if (f.valueOf() === s) {
-	        return f;
+	      if (_useFractions) {
+	        var f = math.fraction(s);
+	        if (f.valueOf() === s) {
+	          return f;
+	        }
 	      }
 	      return s;
 	    },
@@ -39622,9 +39670,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (s.im !== 0) {
 	        return s;
 	      }
-	      var f = math.fraction(s.re);
-	      if (f.valueOf() === s.re) {
-	        return f;
+	      if (_useFractions) {
+	        var f = math.fraction(s.re);
+	        if (f.valueOf() === s.re) {
+	          return f;
+	        }
 	      }
 	      return s.re;
 	    },
@@ -39666,7 +39716,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return args.reduce(function(a, b) {
 	      if (!a.isNode && !b.isNode) {
 	        try {
-	          return _eval(fn, [a,b]);
+	          return _eval(fn, [a, b]);
 	        }
 	        catch (ignoreandcontinue) {}
 	        a = _toNode(a);
