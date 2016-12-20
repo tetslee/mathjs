@@ -7,7 +7,7 @@
  * mathematical functions, and a flexible expression parser.
  *
  * @version 3.6.0
- * @date    2016-12-19
+ * @date    2016-12-20
  *
  * @license
  * Copyright (C) 2013-2016 Jos de Jong <wjosdejong@gmail.com>
@@ -39877,13 +39877,21 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  /**
 	   * Flatten all associative operators in an expression tree.
+	   * Intended to be used for associative binary operators.
 	   * Assumes parentheses have already been removed.
 	   */
 	  function flatten(node) {
 	    if (!node.args || node.args.length === 0) {
-	      return node;
+	      return;
 	    }
-	    node.args = allChildren(node);
+	    if (node.args.length === 1) {
+	      flatten(node.args[0]);
+	      return;
+	    }
+
+	    if (isAssociative(node)) {
+	      node.args = allChildren(node);
+	    }
 	    for (var i=0; i<node.args.length; i++) {
 	      flatten(node.args[i]);
 	    }
@@ -39891,15 +39899,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  /**
 	   * Get the children of a node as if it has been flattened.
+	   * Intended to be used for associative binary operators.
 	   * TODO implement for FunctionNodes
 	   */
 	  function allChildren(node) {
-	    var op;
+	    var fn;
 	    var children = [];
 	    var findChildren = function(node) {
 	      for (var i = 0; i < node.args.length; i++) {
 	        var child = node.args[i];
-	        if (child.isOperatorNode && op === child.op) {
+	        if ((child.isOperatorNode || child.isFunctionNode) && fn === child.fn.toString()) {
 	          findChildren(child);
 	        }
 	        else {
@@ -39908,8 +39917,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    };
 
-	    if (node.isOperatorNode && isAssociative(node)) {
-	      op = node.op;
+	    if ((node.isOperatorNode || node.isFunctionNode) && isAssociative(node)) {
+	      fn = node.fn.toString();
 	      findChildren(node);
 	      return children;
 	    }
