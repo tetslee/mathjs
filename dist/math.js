@@ -7,7 +7,7 @@
  * mathematical functions, and a flexible expression parser.
  *
  * @version 3.6.0
- * @date    2016-12-20
+ * @date    2016-12-22
  *
  * @license
  * Copyright (C) 2013-2016 Jos de Jong <wjosdejong@gmail.com>
@@ -38249,28 +38249,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  });
 
-	  derivative.toTex = function(deriv){
-	    return _derivTex.apply(null, deriv.args);
-	  }
-
-	  var _derivTex = typed('_derivTex', {
-	    'Node, SymbolNode': function (expr, x) {
-	      return _derivTex(expr.toString(), x.toString(), 1);
-	    },
-	    'Node, SymbolNode, ConstantNode': function (expr, x, order) {
-	      return _derivTex(expr.toString(), x.name, order.value);
-	    },
-	    'string, string, number': function (expr, x, order) {
-	      var d;
-	      if (order === 1) {
-	        d = "{d\\over d" + x + "}";
-	      }
-	      else {
-	        d = "{d^{" + order + "}\\over d" + x + "^{" + order + "}}";
-	      }
-	      return d + "\\left[" + expr + "\\right]"
+	  derivative.toTex = function(node, options) {
+	    if (node.args.length === 2
+	      && node.args[0].isNode
+	      && node.args[1].isSymbolNode) {
+	      return _derivTex(node.args[0].toTex(options), node.args[1].toTex(options), 1);
 	    }
-	  });
+	    else if (node.args.length === 3
+	      && node.args[0].isNode
+	      && node.args[1].isSymbolNode
+	      && node.args[2].isConstantNode) {
+	      return _derivTex(node.args[0].toTex(options), node.args[1].name, order.value);
+	    }
+	    throw new TypeError('Expected derivative Node args to be [Node, SymbolNode] or [Node, SymbolNode, ConstantNode]');
+	  };
+
+	  var _derivTex = function(expr, x, order) {
+	    var d;
+	    if (order === 1) {
+	      d = "{d\\over d" + x + "}";
+	    }
+	    else {
+	      d = "{d^{" + order + "}\\over d" + x + "^{" + order + "}}";
+	    }
+	    return d + "\\left[" + expr + "\\right]"
+	  };
 	  /**
 	   * Does a depth-first search on the expression tree to identify what Nodes
 	   * are constants (e.g. 2 + 2), and stores the ones that are constants in
