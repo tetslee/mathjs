@@ -39655,7 +39655,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 	    'BigNumber': function(s) {
 	      var num = s.toNumber();
-	      if (_useFractions && s.decimalPlaces() <= 15) {
+	      if (_useFractions && s.decimalPlaces() <= 15 && isFinite(num)) {
 	        var f = math.fraction(num);
 	        if (f.valueOf() === num) {
 	          return f;
@@ -39664,7 +39664,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return num;
 	    },
 	    'number': function(s) {
-	      if (_useFractions) {
+	      if (_useFractions && isFinite(s)) {
 	        var f = math.fraction(s);
 	        if (f.valueOf() === s) {
 	          return f;
@@ -39676,7 +39676,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (s.im !== 0) {
 	        return s;
 	      }
-	      if (_useFractions) {
+	      if (_useFractions && isFinite(s.re)) {
 	        var f = math.fraction(s.re);
 	        if (f.valueOf() === s.re) {
 	          return f;
