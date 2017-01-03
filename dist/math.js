@@ -39747,7 +39747,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      case 'ConstantNode':
 	        return _toNumber(node.value);
 	      case 'FunctionNode':
-	        if (math[node.name].rawArgs) {
+	        if (math[node.name] && math[node.name].rawArgs) {
 	          return node;
 	        }
 	        /* falls through */
