@@ -7,7 +7,7 @@
  * mathematical functions, and a flexible expression parser.
  *
  * @version 3.6.0
- * @date    2016-12-22
+ * @date    2017-01-03
  *
  * @license
  * Copyright (C) 2013-2016 Jos de Jong <wjosdejong@gmail.com>
@@ -30847,6 +30847,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        openParams()
 	        node = parseImplicitFunctionParameter(node)
 	        closeParams()
+	      }
+	      else if (name in implicit_symbols) {
+	        node = parseAccessors(node, ['[', '.']);
 	      }
 	      else {
 	        node = parseAccessors(node);
