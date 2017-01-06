@@ -7,7 +7,7 @@
  * mathematical functions, and a flexible expression parser.
  *
  * @version 3.6.0
- * @date    2017-01-03
+ * @date    2017-01-06
  *
  * @license
  * Copyright (C) 2013-2016 Jos de Jong <wjosdejong@gmail.com>
@@ -38689,6 +38689,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            ])
 	          ]);
 	          break;
+	        case 'abs':
+	          funcDerivative = new OperatorNode('/', 'divide', [
+	            new FunctionNode(new SymbolNode('abs'), [arg1.clone()]),
+	            arg1.clone()
+	          ]);
+	          break;
 	        case 'gamma':  // Needs digamma function, d/dx(gamma(x)) = gamma(x)digamma(x)
 	        default: throw new Error('Function "' + node.name + '" not supported by derivative');
 	      }
@@ -39759,7 +39765,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (node.args.length === 1) {
 	          args = [foldFraction(node.args[0])];
 	          if (!args[0].isNode) {
-	            res = _eval(fn, args);
+	            try {
+	              res = _eval(fn, args);
+	            }
+	            catch (evalerror) {
+	              // FunctionNode couldn't evaluate a number - it's probably a custom function
+	              res = makeNode(args);
+	            }
 	          }
 	          else {
 	            res = makeNode(args);
