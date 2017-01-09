@@ -7,7 +7,7 @@
  * mathematical functions, and a flexible expression parser.
  *
  * @version 3.6.0
- * @date    2017-01-06
+ * @date    2017-01-09
  *
  * @license
  * Copyright (C) 2013-2016 Jos de Jong <wjosdejong@gmail.com>
@@ -38994,6 +38994,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      rules = _buildRules(rules);
 
 	      var res = removeParens(expr);
+
+	      var visited = {};
+
 	      var after = 'foo';
 	      var before = 'bar';
 	      while(before != after) {
@@ -39010,6 +39013,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	          unflattenl(res); // using left-heavy binary tree here since custom rule functions may expect it
 	        }
 	        var after = res.toString({paranthesis: 'all'});
+	        if (visited[after]) {
+	          console.log("Exiting simplify to avoid endless loop");
+	          break;
+	        }
+	        visited[after] = true;
 	      }
 
 	      console.log("Returning " + after + " from simplify");
