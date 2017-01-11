@@ -7,7 +7,7 @@
  * mathematical functions, and a flexible expression parser.
  *
  * @version 3.6.0
- * @date    2017-01-09
+ * @date    2017-01-11
  *
  * @license
  * Copyright (C) 2013-2016 Jos de Jong <wjosdejong@gmail.com>
@@ -38997,11 +38997,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var visited = {};
 
-	      var after = 'foo';
-	      var before = 'bar';
-	      while(before != after) {
-	        var lastsym = 0;
-	        var before = after;
+	      var str = 'foo';
+	      while(!visited[str]) {
+	        visited[str] = true;
+	        _lastsym = 0;
 	        for (var i=0; i<rules.length; i++) {
 	          if (typeof rules[i] === 'function') {
 	            res = rules[i](res);
@@ -39012,15 +39011,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	          }
 	          unflattenl(res); // using left-heavy binary tree here since custom rule functions may expect it
 	        }
-	        var after = res.toString({paranthesis: 'all'});
-	        if (visited[after]) {
-	          console.log("Exiting simplify to avoid endless loop");
-	          break;
-	        }
-	        visited[after] = true;
+	        str = res.toString({paranthesis: 'all'});
 	      }
 
-	      console.log("Returning " + after + " from simplify");
+	      console.log("Returning " + str + " from simplify");
 	      return res;
 	    }
 	  });
@@ -39179,9 +39173,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ruleSet;
 	  }
 
-	  var lastsym = 0;
+	  var _lastsym = 0;
 	  function _getExpandPlaceholderSymbol() {
-	    return new SymbolNode('_p'+lastsym++);
+	    return new SymbolNode('_p'+_lastsym++);
 	  }
 
 	  /**
