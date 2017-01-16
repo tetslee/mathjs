@@ -7,7 +7,7 @@
  * mathematical functions, and a flexible expression parser.
  *
  * @version 3.6.0
- * @date    2017-01-11
+ * @date    2017-01-16
  *
  * @license
  * Copyright (C) 2013-2016 Jos de Jong <wjosdejong@gmail.com>
@@ -39014,7 +39014,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        str = res.toString({paranthesis: 'all'});
 	      }
 
-	      console.log("Returning " + str + " from simplify");
+	      // console.log("Returning " + str + " from simplify");
 	      return res;
 	    }
 	  });
@@ -39238,7 +39238,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 
 	        var after = res.toString({parenthesis: 'all'});
-	        console.log("Simplified " + before + " to " + after);
+	        // console.log("Simplified " + before + " to " + after);
 	      }
 
 	      return res;
